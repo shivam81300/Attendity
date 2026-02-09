@@ -1,0 +1,95 @@
+<div class="fixed inset-0 bg-black/40 flex items-end justify-center z-50 animate-fade-in" (click)="close.emit()">
+  <div class="bg-white rounded-t-2xl shadow-2xl p-6 w-full max-w-lg animate-slide-up" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path></svg>
+            What-If Simulator
+        </h2>
+        <button (click)="close.emit()" class="text-slate-500 hover:text-slate-800">&times;</button>
+    </div>
+
+    <!-- Stats Display -->
+    <div class="grid grid-cols-2 gap-4 text-center mb-6">
+        <div class="bg-slate-100 p-3 rounded-lg">
+            <p class="text-xs font-semibold text-slate-500">CURRENT</p>
+            <p class="text-3xl font-bold" [class]="getPercentageColor(stats().percentage)">
+                {{ stats().percentage.toFixed(1) }}<span class="text-lg">%</span>
+            </p>
+            <p class="text-xs text-slate-400">{{ stats().totalPresent }} / {{ stats().totalClasses }} Classes</p>
+        </div>
+        <div class="bg-indigo-50 border border-primary/20 p-3 rounded-lg">
+            <p class="text-xs font-semibold text-primary">PROJECTED</p>
+            <p class="text-3xl font-bold" [class]="getPercentageColor(projectedStats().percentage)">
+                {{ projectedStats().percentage.toFixed(1) }}<span class="text-lg">%</span>
+            </p>
+            <p class="text-xs text-primary/60">{{ projectedStats().present }} / {{ projectedStats().total }} Classes</p>
+        </div>
+    </div>
+    
+    <!-- Sliders -->
+    <div class="space-y-5">
+        <div>
+            <div class="flex justify-between items-center mb-1">
+                <label class="text-sm font-semibold text-gray-700">Attend Next Classes</label>
+                <span class="text-sm font-bold text-primary bg-indigo-100 px-2 py-0.5 rounded-md">{{ futurePresent() }}</span>
+            </div>
+            <input 
+                type="range" 
+                min="0" 
+                max="30" 
+                [value]="futurePresent()" 
+                (input)="futurePresent.set(+$any($event.target).value)"
+                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+            />
+        </div>
+         <div>
+            <div class="flex justify-between items-center mb-1">
+                <label class="text-sm font-semibold text-gray-700">Miss Next Classes</label>
+                <span class="text-sm font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded-md">{{ futureAbsent() }}</span>
+            </div>
+            <input 
+                type="range" 
+                min="0" 
+                max="15" 
+                [value]="futureAbsent()" 
+                (input)="futureAbsent.set(+$any($event.target).value)"
+                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer range-thumb-red"
+            />
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="grid grid-cols-2 gap-4 pt-6 mt-2">
+        <button (click)="reset()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl">
+          Reset
+        </button>
+        <button (click)="close.emit()" class="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-xl">
+          Done
+        </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .animate-slide-up {
+     animation: slide-up 0.3s ease-out forwards;
+  }
+  /* Custom styles for slider thumbs */
+  input[type=range].range-thumb-red::-webkit-slider-thumb {
+    background-color: #ef4444; /* red-500 */
+  }
+  input[type=range].range-thumb-red::-moz-range-thumb {
+     background-color: #ef4444; /* red-500 */
+  }
+</style>

@@ -1,0 +1,25 @@
+
+<div class="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
+    <h1 class="text-xl font-bold text-gray-800">Subject Statistics</h1>
+    
+    @for (subject of subjects(); track subject.id) {
+      @let percentage = getPercentage(subject.present, subject.total);
+      <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+        <div class="w-1.5 h-12 rounded-full" [style.background-color]="subject.color"></div>
+        <div class="flex-grow">
+          <p class="font-bold text-gray-800">{{ subject.name }}</p>
+          @if(subject.professor) {
+            <p class="text-xs text-slate-500">Prof. {{ subject.professor }}</p>
+          }
+        </div>
+        <div class="text-right">
+          <p class="font-bold text-lg" [class]="percentage >= 75 ? 'text-green-500' : 'text-red-500'">{{ percentage.toFixed(0) }}%</p>
+          <p class="text-xs text-slate-500">{{ subject.present }}P / {{ subject.total }}T</p>
+        </div>
+      </div>
+    } @empty {
+      <div class="text-center py-10 px-4 bg-white rounded-xl border-2 border-dashed border-slate-300">
+          <p class="text-slate-500">No subjects added yet. Add a subject from the Home screen to see its stats.</p>
+      </div>
+    }
+</div>

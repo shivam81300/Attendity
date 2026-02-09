@@ -1,0 +1,84 @@
+<div class="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
+  <!-- Sub-navigation -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-200 p-1 rounded-xl">
+    <button (click)="setSection('faq')"
+            [class]="'w-full py-2 text-sm font-semibold rounded-lg transition-colors ' + (activeSection() === 'faq' ? 'bg-white shadow text-primary' : 'text-slate-600 hover:bg-white/50')">
+      FAQ
+    </button>
+    <button (click)="setSection('about')"
+            [class]="'w-full py-2 text-sm font-semibold rounded-lg transition-colors ' + (activeSection() === 'about' ? 'bg-white shadow text-primary' : 'text-slate-600 hover:bg-white/50')">
+      About Us
+    </button>
+    <button (click)="setSection('privacy')"
+            [class]="'w-full py-2 text-sm font-semibold rounded-lg transition-colors ' + (activeSection() === 'privacy' ? 'bg-white shadow text-primary' : 'text-slate-600 hover:bg-white/50')">
+      Privacy
+    </button>
+    <button (click)="setSection('contact')"
+            [class]="'w-full py-2 text-sm font-semibold rounded-lg transition-colors ' + (activeSection() === 'contact' ? 'bg-white shadow text-primary' : 'text-slate-600 hover:bg-white/50')">
+      Contact
+    </button>
+  </div>
+
+  <!-- Content Area -->
+  <div class="bg-white p-6 rounded-xl shadow-sm">
+    @switch (activeSection()) {
+      @case ('faq') {
+        <div class="prose max-w-none">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
+          
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-semibold">How is my data stored?</h3>
+              <p>Your attendance data is stored locally on your device using your browser's local storage. It is not sent to any external server, ensuring your data remains private and accessible even offline.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold">Can I use this app on multiple devices?</h3>
+              <p>Since data is stored locally, it does not sync between devices automatically. Each device will have its own separate data.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold">What is the "75% Rule"?</h3>
+              <p>Most educational institutions require a minimum of 75% attendance to be eligible for examinations. The app's calculator helps you track this, showing how many classes you can miss or need to attend to stay above this threshold. You can learn more by tapping the settings icon and selecting "75% Rule Explained".</p>
+            </div>
+            <div>
+              <h3 class="font-semibold">How does the timetable import work?</h3>
+              <p>You can import your schedule by either pasting text or uploading a clear image of your timetable. Our AI assistant will parse the information and automatically create subjects and schedules for you, saving you manual entry time.</p>
+            </div>
+          </div>
+        </div>
+      }
+      @case ('about') {
+        <div class="prose max-w-none">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">About Attendify</h2>
+          <p>Attendify is a modern, offline-first attendance tracking application designed to help students stay organized and on top of their academic requirements.</p>
+          <p>Our mission is to provide a simple, beautiful, and powerful tool that removes the stress of attendance management. By offering features like AI-powered timetable importing, detailed analytics, and a "what-if" simulator, we empower students to make informed decisions about their academic commitments.</p>
+          <p>This app was built with privacy in mind. All your data is stored securely on your own device, ensuring it's always available and completely private. We hope Attendify becomes an indispensable part of your student toolkit!</p>
+        </div>
+      }
+      @case ('privacy') {
+        <div class="prose max-w-none">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Privacy Policy</h2>
+          <p><strong>Last Updated:</strong> July 24, 2024</p>
+          <p>Your privacy is critically important to us. Attendify is designed to be a private, personal tool.</p>
+          <ul>
+            <li><strong>Data Storage:</strong> All data you enter into Attendify, including subject names, attendance records, and notes, is stored exclusively in your browser's local storage on your device.</li>
+            <li><strong>Data Collection:</strong> We do not collect, transmit, or store any of your personal data on our servers. The app functions entirely on your device.</li>
+            <li><strong>Third-Party Services:</strong> The app utilizes the Gemini API for its AI features. When you interact with the AI assistant or import timetables, the relevant data (like your prompts or uploaded images) is sent to Google's servers for processing. This is necessary to provide the AI functionality. We encourage you to review Google's privacy policy. No other personal attendance data is sent.</li>
+            <li><strong>Changes to This Policy:</strong> We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</li>
+          </ul>
+        </div>
+      }
+      @case ('contact') {
+        <div class="prose max-w-none">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Contact Us</h2>
+          <p>Have questions, feedback, or suggestions? We'd love to hear from you!</p>
+          <p>While this is a demo application, you can typically reach a development team through the following channels:</p>
+          <ul>
+            <li><strong>Email Support:</strong> <a href="mailto:support@attendify.app">support@attendify.app</a></li>
+            <li><strong>Feedback Form:</strong> <a href="#">attendify.app/feedback</a></li>
+            <li><strong>Twitter:</strong> <a href="#">@AttendifyApp</a></li>
+          </ul>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Attendance Tracker",
+  "description": "A modern, offline-first attendance tracking app for students. It helps track subject-wise attendance, visualizes trends with charts, and calculates the number of classes required to meet a 75% attendance goal.",
+  "requestFramePermissions": []
+}

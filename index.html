@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF--8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendify - Attendance Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#5E56F0',
+            'primary-dark': '#4b44d1',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar for a more polished look */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9; /* slate-100 */
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1; /* slate-300 */
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8; /* slate-400 */
+    }
+    
+    /* Animation Keyframes */
+    @keyframes flash-green {
+      50% { background-color: #dcfce7; } /* green-100 */
+    }
+    .animate-flash-green {
+      animation: flash-green 0.5s ease-out;
+    }
+
+    @keyframes flash-red {
+      50% { background-color: #fee2e2; } /* red-100 */
+    }
+    .animate-flash-red {
+      animation: flash-red 0.5s ease-out;
+    }
+
+    @keyframes flash-blue {
+      50% { background-color: #e0e7ff; } /* indigo-100 */
+    }
+    .animate-flash-blue {
+      animation: flash-blue 0.5s ease-out;
+    }
+
+    body {
+        background-color: #f1f5f9; /* slate-100 */
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://esm.sh/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://esm.sh/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://esm.sh/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://esm.sh/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://esm.sh/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://esm.sh/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://esm.sh/@angular/compiler@^21.1.2?external=rxjs",
+    "@angular/platform-browser": "https://esm.sh/@angular/platform-browser@^21.1.2?external=rxjs",
+    "@angular/core": "https://esm.sh/@angular/core@^21.1.2?external=rxjs",
+    "@angular/common": "https://esm.sh/@angular/common@^21.1.2?external=rxjs",
+    "@google/genai": "https://esm.sh/@google/genai?bundle"
+  }
+}
+</script>
+</head>
+<body class="bg-slate-100 text-gray-900 antialiased">
+  <app-root></app-root>
+</body>
+</html>

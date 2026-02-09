@@ -1,0 +1,208 @@
+@if (showAddSubjectModal()) {
+  <app-add-subject-modal 
+    (close)="showAddSubjectModal.set(false)"
+    (add)="onAddSubject($event)">
+  </app-add-subject-modal>
+}
+
+@if (showWhatIfModal()) {
+  <app-what-if-modal 
+    [stats]="overallStats()"
+    (close)="showWhatIfModal.set(false)">
+  </app-what-if-modal>
+}
+
+<div class="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
+  <!-- Header Cards -->
+  <div class="grid grid-cols-2 gap-4">
+    <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col justify-between">
+      <div class="flex justify-between items-start text-slate-500">
+        <div class="bg-slate-100 p-2 rounded-lg">
+           <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 C15 21 15 21 15 21 15 21 15 21 15 21z"></path></svg>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-bold tracking-wider">OVERALL</span>
+            <button (click)="showWhatIfModal.set(true)" class="text-xs font-semibold text-primary/80 hover:text-primary bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded-full transition-colors">
+              What-If
+            </button>
+        </div>
+      </div>
+      <div>
+        <p class="text-3xl font-bold mt-4">{{ overallStats().percentage.toFixed(0) }}%</p>
+        <p class="text-xs text-slate-400">PERFORMANCE</p>
+      </div>
+    </div>
+    <div class="bg-primary text-white p-4 rounded-xl shadow-sm flex flex-col justify-between">
+       <div class="flex justify-between items-start">
+        <div class="bg-white/20 p-2 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+        <span class="text-xs font-bold tracking-wider">TODAY</span>
+      </div>
+      <div>
+        <p class="text-3xl font-bold mt-4">{{ todaysStats().present }} / {{ todaysStats().marked }}</p>
+        <p class="text-xs text-white/70">MARKED TODAY</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Schedule -->
+  @if (todaysSchedule().length > 0) {
+    <div class="space-y-3">
+        <h2 class="text-sm font-bold text-slate-500 tracking-wider">TODAY'S SCHEDULE</h2>
+        @for(item of todaysSchedule(); track item.subject.id + item.slot.time) {
+          @let dailyStats = getSubjectTodaysStats(item.subject.id);
+          <div class="bg-white/70 backdrop-blur-sm rounded-lg p-3 flex items-center gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-1.5 h-10 rounded-full" [style.background-color]="item.subject.color"></div>
+            </div>
+            <div class="flex-grow">
+              <p class="font-bold text-slate-800">{{ item.subject.name }}</p>
+              <p class="text-xs text-slate-500">{{ item.slot.time }} &bull; {{ item.subject.professor }}</p>
+            </div>
+             <div class="text-right">
+              @if(dailyStats.marked > 0) {
+                  <span class="text-xs font-bold bg-indigo-100 text-primary px-2 py-1 rounded-full">
+                    Marked {{ dailyStats.marked }} / {{ dailyStats.total }}
+                  </span>
+              } @else {
+                  <span class="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-full">
+                    Pending
+                  </span>
+              }
+             </div>
+          </div>
+        }
+    </div>
+  }
+
+  <!-- Your Subjects Header & Add Subject -->
+  <div class="flex justify-between items-center pt-4">
+    <h2 class="text-sm font-bold text-slate-500 tracking-wider">YOUR SUBJECTS</h2>
+    <button (click)="showAddSubjectModal.set(true)" class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-sm text-sm flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        New Subject
+    </button>
+  </div>
+  
+  <!-- Subjects List -->
+  <div class="space-y-4">
+    @for (subject of subjects(); track subject.id) {
+      @let percentage = getPercentage(subject.present, subject.total);
+      @let safetyInfo = calculateSafetyInfo(subject.present, subject.total);
+      @let dailyStats = getSubjectTodaysStats(subject.id);
+      
+      <div class="bg-white rounded-lg shadow-sm transition-all duration-300"
+        [class.animate-flash-green]="actionStates()[subject.id] === 'present'"
+        [class.animate-flash-red]="actionStates()[subject.id] === 'absent'"
+        [class.animate-flash-blue]="actionStates()[subject.id] === 'undo'">
+        <div class="p-4">
+            <!-- Edit View -->
+            @if (editingSubjectId() === subject.id) {
+                <div class="space-y-2">
+                    <input type="text" [value]="editingSubjectName()" (input)="editingSubjectName.set($any($event.target).value)" class="w-full text-xl font-bold bg-slate-100 border-slate-200 rounded p-1"/>
+                    <input type="text" [value]="editingProfessorName()" (input)="editingProfessorName.set($any($event.target).value)" class="w-full text-sm text-slate-500 bg-slate-100 border-slate-200 rounded p-1"/>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button (click)="saveEdit(subject.id)" class="text-sm bg-primary text-white px-3 py-1 rounded">Save</button>
+                        <button (click)="cancelEdit()" class="text-sm bg-slate-200 text-slate-700 px-3 py-1 rounded">Cancel</button>
+                    </div>
+                </div>
+            } @else {
+                  <div class="flex items-start gap-4">
+                     <div class="w-2 h-2 rounded-full mt-2" [style.background-color]="subject.color"></div>
+                     <div class="flex-grow">
+                          <!-- Header -->
+                          <div class="flex justify-between items-start mb-1">
+                              <div>
+                                  <div class="flex items-center gap-2">
+                                  <h3 class="text-lg font-bold text-gray-800">{{ subject.name }}</h3>
+                                      <button (click)="startEditing(subject)" class="text-slate-400 hover:text-primary transition-colors">
+                                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
+                                      </button>
+                                  </div>
+                                  @if(subject.professor) {<p class="text-xs text-slate-500">Prof. {{ subject.professor }}</p>}
+                              </div>
+                              <div [class]="'text-xl font-extrabold ' + getPercentageColor(percentage)">{{ percentage.toFixed(0) }}%</div>
+                          </div>
+                          <p class="text-sm text-slate-500 mb-2">{{ subject.present }} / {{ subject.total }} attended</p>
+                          <!-- Progress Bar -->
+                          <div class="w-full bg-slate-200 rounded-full h-1.5 mb-2">
+                            <div [class]="'h-1.5 rounded-full ' + getProgressBarColor(percentage)" [style.width]="percentage + '%'"></div>
+                          </div>
+                          <!-- Status -->
+                          <div class="text-xs font-semibold flex items-center gap-1" [class]="safetyInfo.status === 'safe' ? 'text-green-600' : 'text-red-600'">
+                              @if(safetyInfo.status !== 'na') {
+                                @if (safetyInfo.status === 'safe') {
+                                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                  </svg>
+                                } @else if (safetyInfo.status === 'unsafe') {
+                                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.22 3.001-1.742 3.001H4.42c-1.522 0-2.492-1.667-1.742-3.001l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                  </svg>
+                                }
+                                <span>{{ safetyInfo.value }}</span>
+                              }
+                          </div>
+                     </div>
+                  </div>
+                }
+        </div>
+        
+        <!-- What-if Simulator -->
+        <div class="bg-indigo-50/70 p-3 border-t border-slate-200 mt-2">
+            <div class="flex justify-between items-center text-xs mb-2">
+                <label for="what-if-{{subject.id}}" class="font-semibold text-primary flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path></svg>
+                  WHAT-IF SIMULATOR
+                </label>
+                <div class="font-bold text-gray-700">
+                    Projected: <span class="text-primary">{{ calculateWhatIf(subject.present, subject.total).toFixed(1) }}%</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-600">Attend next</span>
+              <input 
+                id="what-if-{{subject.id}}" 
+                type="range" 
+                min="1" 
+                max="15" 
+                [value]="whatIfClasses()" 
+                (input)="whatIfClasses.set(+$any($event.target).value)"
+                class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer range-sm"
+              />
+              <span class="text-sm font-bold text-primary w-6 text-center">{{ whatIfClasses() }}</span>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="grid grid-cols-3 gap-0 border-t border-slate-200 bg-slate-50 rounded-b-lg">
+          <button (click)="markPresent(subject.id)" 
+                  [disabled]="dailyStats.total > 0 && dailyStats.marked >= dailyStats.total"
+                  [title]="(dailyStats.total > 0 && dailyStats.marked >= dailyStats.total) ? 'All scheduled classes for today have been marked' : 'Mark as Present'"
+                  class="text-center font-bold text-green-600 hover:bg-green-100 p-3 rounded-bl-lg transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
+             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+            Present
+          </button>
+          <button (click)="markAbsent(subject.id)" 
+                  [disabled]="dailyStats.total > 0 && dailyStats.marked >= dailyStats.total"
+                  [title]="(dailyStats.total > 0 && dailyStats.marked >= dailyStats.total) ? 'All scheduled classes for today have been marked' : 'Mark as Absent'"
+                  class="text-center font-bold text-red-600 hover:bg-red-100 p-3 border-x border-slate-200 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+            Absent
+          </button>
+          <button (click)="undoLastAction(subject.id, subject)" [disabled]="subject.history.length === 0" class="text-center text-slate-500 hover:bg-slate-200 p-3 rounded-br-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="h-5 w-5 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <div class="text-center py-10 px-4 bg-white rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center">
+          <div class="bg-slate-100 rounded-full p-3 mb-4">
+            <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          </div>
+          <p class="text-slate-500 mt-1">Start by adding your first subject to track attendance!</p>
+      </div>
+    }
+  </div>
+</div>

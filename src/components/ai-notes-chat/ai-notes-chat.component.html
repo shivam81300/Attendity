@@ -1,0 +1,59 @@
+
+<div class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50" (click)="close.emit()">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg h-[70vh] flex flex-col" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center p-4 border-b border-slate-200">
+      <h2 class="text-lg font-bold text-primary">Chat with your notes</h2>
+      <button (click)="close.emit()" class="text-slate-500 hover:text-slate-800 transition-colors">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="flex-grow p-4 space-y-4 overflow-y-auto">
+        @for(message of messages(); track $index) {
+            <div class="flex" [class.justify-end]="message.sender === 'user'">
+            @if (message.sender === 'ai') {
+                <div class="bg-slate-100 rounded-lg p-3 max-w-sm">
+                <p class="text-gray-800 text-sm whitespace-pre-wrap">{{ message.text }}</p>
+                </div>
+            } @else {
+                <div class="bg-primary text-white rounded-lg p-3 max-w-sm">
+                <p class="text-sm">{{ message.text }}</p>
+                </div>
+            }
+            </div>
+        }
+        @if(isLoading()) {
+            <div class="flex">
+                <div class="bg-slate-100 rounded-lg p-3 max-w-sm">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 bg-primary rounded-full animate-pulse [animation-delay:0.2s]"></div>
+                    <div class="w-2 h-2 bg-primary rounded-full animate-pulse [animation-delay:0.4s]"></div>
+                </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="p-4 bg-white border-t border-slate-200">
+        <form (submit)="sendMessage(); $event.preventDefault()" class="flex items-center gap-2">
+            <input 
+            type="text" 
+            [value]="userInput()"
+            (input)="userInput.set($any($event.target).value)"
+            placeholder="Ask a question..."
+            class="w-full bg-slate-100 border-transparent rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:outline-none"
+            [disabled]="isLoading()"
+            />
+            <button 
+            type="submit" 
+            class="bg-primary text-white rounded-lg p-3 disabled:bg-slate-400"
+            [disabled]="isLoading() || !userInput().trim()">
+            <svg class="w-6 h-6 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            </button>
+        </form>
+    </div>
+  </div>
+</div>

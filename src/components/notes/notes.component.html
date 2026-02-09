@@ -1,0 +1,82 @@
+@if (selectedSubjectForChat(); as subject) {
+    <app-ai-notes-chat [subject]="subject" (close)="selectedSubjectForChat.set(null)"></app-ai-notes-chat>
+}
+
+<div class="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
+    <h1 class="text-xl font-bold text-gray-800">Subject Notes</h1>
+    
+    @if(error()) {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Error:</strong>
+            <span class="block sm:inline">{{ error() }}</span>
+        </div>
+    }
+
+    @for (subject of subjects(); track subject.id) {
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <button (click)="toggleSubject(subject.id)" class="w-full text-left p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-10 rounded-full" [style.background-color]="subject.color"></div>
+                    <div>
+                        <p class="font-bold text-gray-800">{{ subject.name }}</p>
+                        <p class="text-xs text-slate-500">{{ (subject.notes || []).length }} note(s)</p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-slate-500 transition-transform" [class.rotate-180]="expandedSubjectId() === subject.id">
+                    <path fill="currentColor" d="M10 12l-5-5 1.5-1.5L10 9l3.5-3.5L15 5l-5 5z"/>
+                </svg>
+            </button>
+
+            @if (expandedSubjectId() === subject.id) {
+                <div class="p-4 border-t border-slate-200 space-y-3">
+                    <!-- Note List -->
+                    @for(note of subject.notes; track note.id) {
+                        <div class="bg-slate-50 p-3 rounded-lg flex items-start gap-3">
+                            <div class="flex-shrink-0 text-slate-400 mt-1">
+                                @if (note.fileType.startsWith('image')) {
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+                                } @else if (note.fileType === 'application/pdf') {
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+                                } @else {
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2v2a2 2 0 01-2-2H4a2 2 0 012-2h2.586A2 2 0 0110 2.586L10 6H6z" clip-rule="evenodd"></path></svg>
+                                }
+                            </div>
+                           <div class="flex-grow">
+                                <h4 class="font-semibold text-slate-800">{{ note.title }}</h4>
+                                <p class="text-xs text-slate-500 mt-1 prose prose-sm max-w-none">
+                                    {{ note.content.substring(0, 100) }}{{ note.content.length > 100 ? '...' : '' }}
+                                </p>
+                                <p class="text-xs text-slate-400 mt-2">Uploaded on {{ formatDate(note.uploadDate) }}</p>
+                           </div>
+                           <button (click)="deleteNote(subject.id, note.id)" class="text-red-400 hover:text-red-600 flex-shrink-0 text-xl font-bold p-1 leading-none">&times;</button>
+                        </div>
+                    } @empty {
+                         <p class="text-center text-sm text-slate-400 py-4">No notes for this subject yet.</p>
+                    }
+
+                    <!-- Actions -->
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        <label class="w-full text-sm font-semibold bg-white border border-slate-300 text-slate-700 rounded-lg p-2 flex items-center justify-center gap-2 hover:bg-slate-50 cursor-pointer">
+                            <input type="file" class="hidden" (change)="onFileSelected($event, subject)" accept=".txt,.pdf,image/png,image/jpeg">
+                            @if(isLoading()[subject.id]) {
+                                <div class="w-5 h-5 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span>Processing...</span>
+                            } @else {
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.414l-1.293 1.293a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L13 9.414V13H5.5z"></path><path d="M9 13h2v5a1 1 0 11-2 0v-5z"></path></svg>
+                                <span>Upload Note</span>
+                            }
+                        </label>
+                        <button (click)="startChat(subject)" [disabled]="!subject.notes || subject.notes.length === 0" class="w-full text-sm font-semibold bg-primary text-white rounded-lg p-2 flex items-center justify-center gap-2 disabled:bg-slate-400 disabled:cursor-not-allowed">
+                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"></path></svg>
+                            <span>Ask AI</span>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    } @empty {
+      <div class="text-center py-10 px-4 bg-white rounded-xl border-2 border-dashed border-slate-300">
+          <p class="text-slate-500">No subjects added yet. Add a subject from the Home screen to start organizing notes.</p>
+      </div>
+    }
+</div>

@@ -1,0 +1,26 @@
+
+@if (subject().history.length > 0) {
+    <div>
+        <div class="flex justify-center mb-4 bg-slate-100 rounded-lg p-1">
+            <button (click)="activeTrendView.set('daily')"
+                    [class]="'w-full py-1.5 text-sm font-semibold rounded-md ' + (activeTrendView() === 'daily' ? 'bg-white shadow-sm text-primary' : 'text-slate-500')">
+                Daily
+            </button>
+            <button (click)="activeTrendView.set('weekly')"
+                    [class]="'w-full py-1.5 text-sm font-semibold rounded-md ' + (activeTrendView() === 'weekly' ? 'bg-white shadow-sm text-primary' : 'text-slate-500')">
+                Weekly
+            </button>
+            <button (click)="activeTrendView.set('monthly')"
+                    [class]="'w-full py-1.5 text-sm font-semibold rounded-md ' + (activeTrendView() === 'monthly' ? 'bg-white shadow-sm text-primary' : 'text-slate-500')">
+                Monthly
+            </button>
+        </div>
+        <div class="h-64">
+            <canvas #trendChart></canvas>
+        </div>
+    </div>
+} @else {
+    <div class="text-center py-10 px-4">
+        <p class="text-slate-500">No attendance history for this subject yet. Mark it as present or absent to see trends.</p>
+    </div>
+}

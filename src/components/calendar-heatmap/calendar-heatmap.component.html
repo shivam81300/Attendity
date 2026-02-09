@@ -1,0 +1,89 @@
+<div class="bg-white p-4 rounded-xl shadow-sm">
+  <!-- Header with navigation -->
+  <div class="flex justify-between items-center mb-4">
+    <button (click)="changeMonth(-1)" class="p-2 rounded-full hover:bg-slate-100">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </button>
+    <h2 class="text-lg font-bold text-gray-800">
+      {{ currentDate().toLocaleString('default', { month: 'long', year: 'numeric' }) }}
+    </h2>
+    <button (click)="changeMonth(1)" class="p-2 rounded-full hover:bg-slate-100">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    </button>
+  </div>
+
+  <!-- View Customization -->
+  <div class="mb-4 flex justify-center bg-slate-200 p-1 rounded-lg">
+      <button (click)="setDisplayMode('heatmap')" [class]="'w-full py-1.5 text-sm font-semibold rounded-md ' + (displayMode() === 'heatmap' ? 'bg-white shadow-sm text-primary' : 'text-slate-500')">
+        Heatmap
+      </button>
+      <button (click)="setDisplayMode('counts')" [class]="'w-full py-1.5 text-sm font-semibold rounded-md ' + (displayMode() === 'counts' ? 'bg-white shadow-sm text-primary' : 'text-slate-500')">
+        Counts
+      </button>
+      <button (click)="setDisplayMode('threshold')" [class]="'w-full py-1.5 text-sm font-semibold rounded-md ' + (displayMode() === 'threshold' ? 'bg-white shadow-sm text-primary' : 'text-slate-500')">
+        75% Goal
+      </button>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="grid grid-cols-7 gap-1 text-center text-sm">
+    <!-- Day Headers -->
+    @for(day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; track day) {
+      <div class="font-semibold text-slate-500 py-2">{{ day }}</div>
+    }
+
+    <!-- Calendar Days -->
+    @for(day of calendarGrid(); track day.date) {
+      <div class="relative h-16 rounded-lg transition-colors flex flex-col items-center justify-center font-bold"
+           [class.text-slate-400]="!day.isCurrentMonth"
+           [class]="getHeatmapColor(day.attendance?.percentage)">
+        <span class="absolute top-1 left-2 font-medium" 
+              [class.bg-primary]="isToday(day.date)"
+              [class.text-white]="isToday(day.date)"
+              [class.rounded-full]="isToday(day.date)"
+              [class.w-6]="isToday(day.date)"
+              [class.h-6]="isToday(day.date)"
+              [class.flex]="isToday(day.date)"
+              [class.items-center]="isToday(day.date)"
+              [class.justify-center]="isToday(day.date)">
+          {{ day.dayOfMonth }}
+        </span>
+        @if(day.isCurrentMonth && day.attendance) {
+          <div class="flex flex-col items-center justify-center">
+            @switch(displayMode()) {
+              @case('heatmap') {
+                <div class="text-xl">{{ day.attendance.percentage.toFixed(0) }}%</div>
+              }
+              @case('counts') {
+                <div class="text-xl">
+                  <span>{{ day.attendance.present }}</span>
+                  <span class="opacity-70">/</span>
+                  <span>{{ day.attendance.total }}</span>
+                </div>
+                <div class="text-xs opacity-80 font-medium">Present</div>
+              }
+              @case('threshold') {
+                  @if (day.attendance.percentage >= 75) {
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                  } @else {
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  }
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+  
+  <!-- Legend -->
+  <div class="flex justify-center items-center space-x-2 mt-4 text-xs text-slate-500">
+      <span>Less</span>
+      <div class="w-4 h-4 rounded-sm bg-red-500"></div>
+      <div class="w-4 h-4 rounded-sm bg-orange-400"></div>
+      <div class="w-4 h-4 rounded-sm bg-yellow-400"></div>
+      <div class="w-4 h-4 rounded-sm bg-green-400"></div>
+      <div class="w-4 h-4 rounded-sm bg-green-600"></div>
+      <span>More</span>
+  </div>
+</div>

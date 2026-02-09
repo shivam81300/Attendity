@@ -1,0 +1,78 @@
+
+<div class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[60]" (click)="close.emit()">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md" (click)="$event.stopPropagation()">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Import Timetable</h2>
+    <p class="text-sm text-slate-600 mb-4">
+      Paste your schedule below, or upload a clear picture of it.
+    </p>
+
+    <!-- Text Input -->
+    <textarea 
+        [value]="timetableText()"
+        (input)="timetableText.set($any($event.target).value); onTextInput()"
+        rows="4"
+        placeholder="e.g. Mon 9am, Wed 2:30 PM..."
+        class="w-full bg-slate-100 border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-primary focus:outline-none"
+        [disabled]="isLoading()"
+    ></textarea>
+    
+    <div class="my-4 flex items-center text-xs text-slate-400">
+        <span class="flex-grow bg-slate-200 h-px"></span>
+        <span class="px-2">OR</span>
+        <span class="flex-grow bg-slate-200 h-px"></span>
+    </div>
+
+    <!-- File Input -->
+    <input type="file" class="hidden" #fileInput accept="image/*" (change)="onFileSelected($event)">
+    
+    @if(selectedFile(); as file) {
+      <div class="mb-2">
+        <img [src]="file.previewUrl" alt="Timetable preview" class="max-h-32 w-auto mx-auto rounded-lg shadow-sm border border-slate-200">
+      </div>
+      <div class="bg-indigo-50 border border-primary/20 rounded-lg p-2 flex items-center justify-between text-sm">
+        <div class="flex items-center gap-2 truncate">
+          <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>
+          <span class="truncate font-medium text-slate-700">{{ file.name }}</span>
+        </div>
+        <button (click)="clearSelection()" class="text-slate-500 hover:text-red-600 p-1 rounded-full flex-shrink-0">&times;</button>
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 gap-2">
+          <button (click)="triggerFileSelect()" class="w-full text-sm font-semibold bg-white border border-slate-300 text-slate-700 rounded-lg p-2 flex items-center justify-center gap-2 hover:bg-slate-50">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.414l-1.293 1.293a1 1 0 01-1.414-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L13 9.414V13H5.5z"></path><path d="M9 13h2v5a1 1 0 11-2 0v-5z"></path></svg>
+            Upload Image
+          </button>
+          <button title="PDF import is coming soon!" class="w-full text-sm font-semibold bg-white border border-slate-300 text-slate-400 rounded-lg p-2 flex items-center justify-center gap-2 cursor-not-allowed opacity-60">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+            Upload PDF
+          </button>
+      </div>
+    }
+
+    @if (error()) {
+        <p class="text-sm text-red-600 mt-2">{{ error() }}</p>
+    }
+
+    <!-- Actions -->
+    <div class="grid grid-cols-2 gap-4 mt-6">
+        <button 
+            type="button" 
+            (click)="close.emit()" 
+            class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl disabled:opacity-50"
+            [disabled]="isLoading()">
+          Cancel
+        </button>
+        <button 
+            type="button" 
+            (click)="startParsing()"
+            [disabled]="(!timetableText().trim() && !selectedFile()) || isLoading()" 
+            class="bg-primary hover:bg-primary-dark disabled:bg-slate-400 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center">
+            @if (isLoading()) {
+                <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            } @else {
+                <span>Parse & Import</span>
+            }
+        </button>
+    </div>
+  </div>
+</div>

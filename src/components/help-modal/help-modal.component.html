@@ -1,0 +1,26 @@
+
+<div class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50" (click)="close.emit()">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border border-slate-200" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-primary">The 75% Rule</h2>
+      <button (click)="close.emit()" class="text-slate-500 hover:text-slate-800 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="space-y-4 text-slate-600">
+      <p>Most universities require students to maintain a minimum of 75% attendance in each subject to be eligible for exams.</p>
+      <p>This app helps you stay on top of this requirement.</p>
+      <div class="bg-slate-100 p-4 rounded-lg border border-slate-200">
+        <h3 class="font-semibold text-slate-800 mb-2">How the Calculator Works:</h3>
+        <ul class="list-disc list-inside space-y-1">
+            <li>If your attendance is <span class="text-red-500 font-semibold">below 75%</span>, it calculates the minimum number of classes you must attend consecutively to get back above the 75% mark.</li>
+            <li>If you are <span class="text-green-500 font-semibold">at or above 75%</span>, you are in the "Safe Zone".</li>
+            <li>The calculation assumes you will be marked 'Present' for all future classes until the goal is met.</li>
+        </ul>
+      </div>
+      <p>Keep track, stay safe, and ace your exams!</p>
+    </div>
+  </div>
+</div>

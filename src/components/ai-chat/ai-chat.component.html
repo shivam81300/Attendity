@@ -1,0 +1,65 @@
+
+<div class="flex flex-col h-full">
+  <!-- Chat messages -->
+  <div class="flex-grow p-4 space-y-4 overflow-y-auto">
+    @for(message of messages(); track $index) {
+      <div class="flex" [class.justify-end]="message.sender === 'user'">
+        @if (message.sender === 'ai') {
+          <div class="bg-white rounded-lg p-3 max-w-sm">
+            <p class="text-gray-800 whitespace-pre-wrap">{{ message.text }}</p>
+          </div>
+        } @else {
+          <div class="bg-primary text-white rounded-lg p-3 max-w-sm">
+            <p>{{ message.text }}</p>
+          </div>
+        }
+      </div>
+    }
+    @if(isLoading()) {
+       <div class="flex">
+          <div class="bg-white rounded-lg p-3 max-w-sm">
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+              <div class="w-2 h-2 bg-primary rounded-full animate-pulse [animation-delay:0.2s]"></div>
+              <div class="w-2 h-2 bg-primary rounded-full animate-pulse [animation-delay:0.4s]"></div>
+            </div>
+          </div>
+        </div>
+    }
+  </div>
+
+  <!-- Message input -->
+  <div class="p-4 bg-slate-100 border-t border-slate-200">
+    <form (submit)="sendMessage(); $event.preventDefault()" class="space-y-2">
+       <!-- Subject Selector -->
+      <div class="flex items-center gap-2">
+        <label for="subject-select" class="text-sm font-semibold text-slate-600 flex-shrink-0">Chat Context:</label>
+        <select id="subject-select"
+                [value]="selectedSubjectId()"
+                (change)="selectedSubjectId.set($any($event.target).value)"
+                class="flex-grow w-full bg-white border-slate-200 rounded-md p-2 text-sm focus:ring-1 focus:ring-primary focus:outline-none">
+          <option value="general">General & Attendance</option>
+          @for (subject of subjects(); track subject.id) {
+            <option [value]="subject.id">{{ subject.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <input 
+          type="text" 
+          [value]="userInput()"
+          (input)="userInput.set($any($event.target).value)"
+          placeholder="Ask for advice..."
+          class="w-full bg-white border-transparent rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:outline-none"
+          [disabled]="isLoading()"
+        />
+        <button 
+          type="submit" 
+          class="bg-primary text-white rounded-lg p-3 disabled:bg-slate-400"
+          [disabled]="isLoading() || !userInput().trim()">
+          <svg class="w-6 h-6 transform rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
